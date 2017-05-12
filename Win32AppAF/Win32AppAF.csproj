@@ -38,6 +38,12 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mail">
+      <HintPath>..\packages\Mail.dll.3.0.17128.1137\lib\Net45\Mail.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenPop">
+      <HintPath>..\packages\OpenPop.NET.2.0.6.1120\lib\net40\OpenPop.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -53,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Martz90-Circle-Addon2-Antivirus-universal.ico" />

