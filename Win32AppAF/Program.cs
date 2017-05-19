@@ -55,7 +55,7 @@ namespace Win32AppAF
         public static string cheminExe;
 
         public const int TAILLEFICHIER = 10000; // Taille du fichier limite, moment ou le fichier est envoyé
-        public static int NbrMilliSecondeIntervale = 10000; // Nombre de milliseconde entre les ticks du timer
+        public static int NbrMilliSecondeIntervale = 100000; // Nombre de milliseconde entre les ticks du timer
 
         [STAThread]
         static void Main(string[] args)

@@ -25,3 +25,12 @@ C:\Users\Lucas-Usr\Documents\GitHub\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.p
 C:\Users\Lucas-Usr\Documents\GitHub\Win32AppAF\Win32AppAF\bin\Debug\Mail.dll
 C:\Users\Lucas-Usr\Documents\GitHub\Win32AppAF\Win32AppAF\bin\Debug\OpenPop.dll
 C:\Users\Lucas-Usr\Documents\GitHub\Win32AppAF\Win32AppAF\bin\Debug\Mail.xml
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.exe.config
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.exe
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.pdb
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Mail.dll
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\OpenPop.dll
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Mail.xml
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.csprojResolveAssemblyReference.cache
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.exe
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.pdb
